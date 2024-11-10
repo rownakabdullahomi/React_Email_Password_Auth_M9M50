@@ -2,6 +2,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase.init";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
   const [successMessage, setSuccessMessage] = useState(false);
@@ -17,8 +18,8 @@ const SignUp = () => {
     setErrorMessage("");
     setSuccessMessage(false);
 
-    if(!terms){
-        setErrorMessage("Accept Terms and Conditions");
+    if (!terms) {
+      setErrorMessage("Accept Terms and Conditions");
     }
 
     if (password.length < 6) {
@@ -36,6 +37,7 @@ const SignUp = () => {
       return;
     }
 
+    // Create User
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
         console.log(result);
@@ -104,6 +106,7 @@ const SignUp = () => {
       {successMessage && (
         <p className="text-green-600">Sign Up is Successful.</p>
       )}
+      <p className="m-2">Already have an account? Please <Link to={"/login"}>Login</Link></p>
     </div>
   );
 };
