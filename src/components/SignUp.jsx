@@ -1,6 +1,6 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase.init";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -8,6 +8,7 @@ const SignUp = () => {
   const [successMessage, setSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const emailRef = useRef();
 
   const handleSignUp = (e) => {
     e.preventDefault();
@@ -42,6 +43,15 @@ const SignUp = () => {
       .then((result) => {
         console.log(result);
         setSuccessMessage(true);
+
+        // Send Verification Email
+        sendEmailVerification(auth.currentUser)
+        .then(()=>{
+            console.log("Verification email send");
+        })
+
+
+
       })
       .catch((error) => {
         setSuccessMessage(false);
@@ -49,6 +59,18 @@ const SignUp = () => {
         console.log(errorMessage);
       });
   };
+
+  const handleForgetPassword = () => {
+    const email = emailRef.current.value;
+    if(!email){
+        alert("Provide Email")
+    }else{
+        sendPasswordResetEmail(auth, email)
+        .then(()=>{
+            alert("Password Reset Email Send.")
+        })
+    }
+  }
 
   return (
     <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl mx-auto my-8">
@@ -61,6 +83,7 @@ const SignUp = () => {
           <input
             type="email"
             name="email"
+            ref={emailRef}
             placeholder="email"
             className="input input-bordered"
             required
@@ -83,7 +106,7 @@ const SignUp = () => {
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
-          <label className="label">
+          <label onClick={handleForgetPassword} className="label">
             <a href="#" className="label-text-alt link link-hover">
               Forgot password?
             </a>
