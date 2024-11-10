@@ -1,12 +1,13 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase.init";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Login = () => {
 
     const [successMessage, setSuccessMessage] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const emailRef = useRef();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -28,6 +29,19 @@ const Login = () => {
     })
   };
 
+
+  const handleForgetPassword = () => {
+    const email = emailRef.current.value;
+    if(!email){
+        alert("Provide Email")
+    }else{
+        sendPasswordResetEmail(auth, email)
+        .then(()=>{
+            alert("Password Reset Email Send.")
+        })
+    }
+  }
+
   return (
     <div className="hero bg-base-200 min-h-screen">
       <div className="hero-content flex-col lg:flex-row-reverse">
@@ -48,6 +62,7 @@ const Login = () => {
               <input
                 type="email"
                 name="email"
+                ref={emailRef}
                 placeholder="email"
                 className="input input-bordered"
                 required
@@ -64,7 +79,7 @@ const Login = () => {
                 className="input input-bordered"
                 required
               />
-              <label className="label">
+              <label onClick={handleForgetPassword} className="label">
                 <a href="#" className="label-text-alt link link-hover">
                   Forgot password?
                 </a>

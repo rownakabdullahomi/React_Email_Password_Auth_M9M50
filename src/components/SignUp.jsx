@@ -1,17 +1,19 @@
-import { createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { auth } from "../firebase.init";
-import { useRef, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const SignUp = () => {
   const [successMessage, setSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const emailRef = useRef();
+  
 
   const handleSignUp = (e) => {
     e.preventDefault();
+    const name = e.target.name.value;
+    const photo = e.target.photo.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
     const terms = e.target.terms.checked;
@@ -50,8 +52,19 @@ const SignUp = () => {
             console.log("Verification email send");
         })
 
+        // update Profile name and photo url
+        const profile = {
+            displayName: name,
+            photoURL: photo
+        }
 
+        updateProfile(auth.currentUser, profile)
+        .then(()=>{
+            console.log("Updated");
+        })
+        .catch(error => console.log(error.message))
 
+        
       })
       .catch((error) => {
         setSuccessMessage(false);
@@ -60,17 +73,7 @@ const SignUp = () => {
       });
   };
 
-  const handleForgetPassword = () => {
-    const email = emailRef.current.value;
-    if(!email){
-        alert("Provide Email")
-    }else{
-        sendPasswordResetEmail(auth, email)
-        .then(()=>{
-            alert("Password Reset Email Send.")
-        })
-    }
-  }
+  
 
   return (
     <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl mx-auto my-8">
@@ -78,12 +81,35 @@ const SignUp = () => {
       <form onSubmit={handleSignUp} className="card-body">
         <div className="form-control">
           <label className="label">
+            <span className="label-text">Name</span>
+          </label>
+          <input
+            type="text"
+            name="name"
+            placeholder="name"
+            className="input input-bordered"
+            required
+          />
+        </div>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Photo URL</span>
+          </label>
+          <input
+            type="text"
+            name="photo"
+            placeholder="photo url"
+            className="input input-bordered"
+            required
+          />
+        </div>
+        <div className="form-control">
+          <label className="label">
             <span className="label-text">Email</span>
           </label>
           <input
             type="email"
             name="email"
-            ref={emailRef}
             placeholder="email"
             className="input input-bordered"
             required
@@ -106,7 +132,7 @@ const SignUp = () => {
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
-          <label onClick={handleForgetPassword} className="label">
+          <label  className="label">
             <a href="#" className="label-text-alt link link-hover">
               Forgot password?
             </a>
